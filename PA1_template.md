@@ -1,13 +1,9 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
-```{r,echo=TRUE}
+
+```r
 #create a temporary directory
 td <- tempdir()
 # create the placeholder file
@@ -25,33 +21,59 @@ data <- read.csv(filepath, header=TRUE, row.names=NULL,
                  stringsAsFactors=FALSE, na.strings = "NA")
 #omit rows where steps are NA and stored in a new variable data.naomit
 data.naomit <- na.omit(data)
-
 ```
 ## What is mean total number of steps taken per day?
-```{r,echo=TRUE}
+
+```r
 #Make a histogram of the total number of steps taken each daynaomit <- na.omit(data)
 data.naomit.totsteps<- aggregate(steps ~ date, data.naomit, sum)
 hist(data.naomit.totsteps$steps, main="Histogram of Steps",xlab="Total Steps")
+```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+
+```r
 # load data.table library
 library(data.table)
-#Calculate and report the mean and median total number of steps taken per day
-data.table(median=median(data.naomit$steps),mean=mean(data.naomit$steps))
+```
 
 ```
+## Warning: package 'data.table' was built under R version 3.1.2
+```
+
+```r
+#Calculate and report the mean and median total number of steps taken per day
+data.table(median=median(data.naomit$steps),mean=mean(data.naomit$steps))
+```
+
+```
+##    median    mean
+## 1:      0 37.3826
+```
 ## What is the average daily activity pattern?
-```{r,echo=TRUE}
+
+```r
 #Average daily activity pattern?
 library(plyr)
 #calculate the mean for the 5-minute interval average number of steps taken across all days
 data.naomit.aggsteps <- aggregate(steps ~ interval, data.naomit, mean)
 # creating time serie plot
 plot(data.naomit.aggsteps$interval, data.naomit.aggsteps$steps,type = "l")
+```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+```r
 #Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 which.max(data.naomit.aggsteps$interval)
+```
 
 ```
+## [1] 288
+```
 ## Imputing missing values
-```{r,echo=TRUE}
+
+```r
 # count missing values
 nbNa <-sum(is.na(data$steps))
 #Strategy for filling in all of the missing values in the dataset.
@@ -63,13 +85,23 @@ data.copy[is.na(data.copy)] <- mean(data.naomit$steps)/nrow(data.naomit.aggsteps
 data.copy.sumdata <- ddply(data.copy, .(date), summarize, sumSteps = sum(steps, na.rm = TRUE))
 #Make a histogram of the total number of steps taken each days 
 hist(data.copy.sumdata$sumSteps, main="Histogram of Sum of Steps",xlab="Total Steps", col="lightblue")
+```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
+```r
 library(data.table)
 #Calculate and report the mean and median total number of step
 data.table(median=median(data.copy$steps),mean=mean(data.copy$steps))
+```
 
 ```
+##    median     mean
+## 1:      0 32.49699
+```
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r,echo=TRUE}
+
+```r
 #Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 #Create a column day
 data.copy$day <- weekdays(as.Date(data.copy$date))
@@ -84,3 +116,5 @@ library(lattice)
 #create the plot by weektime
 xyplot(meanSteps ~ interval | weektime, data = data.copy.weektime, type="l")
 ```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
